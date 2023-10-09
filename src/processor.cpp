@@ -5,5 +5,5 @@
 float Processor::Utilization() { 
   long total = LinuxParser::Jiffies();
   long active = LinuxParser::ActiveJiffies();
-  return (total - active) / total; 
+  return static_cast<float>(active) / total;
 }

@@ -11,22 +11,42 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+// Process::Process(int pid) {
+//   pid_ = pid;
+//   command_ = LinuxParser::Command(pid);
+//   ram_ = LinuxParser::Ram(pid);
+//   uptime_ = LinuxParser::UpTime(pid);
+//   user_ = LinuxParser::User(pid);
+
+//   long seconds = LinuxParser::UpTime() - uptime_;
+//   long totaltime = LinuxParser::ActiveJiffies(pid);
+//   try {
+//     CPUulitizations_ = float(totaltime) / float(seconds);
+
+//   } catch (...) {
+//     CPUulitizations_ = 0;
+//   }
+// }
 Process::Process(int pid) {
   pid_ = pid;
   command_ = LinuxParser::Command(pid);
   ram_ = LinuxParser::Ram(pid);
-  uptime_ = LinuxParser::UpTime(pid);
   user_ = LinuxParser::User(pid);
 
-  long seconds = LinuxParser::UpTime() - uptime_;
+  long system_uptime = LinuxParser::UpTime(); // system uptime
+  long process_start_time = LinuxParser::UpTime(pid); // process start time since boot
+  uptime_ = system_uptime - process_start_time; // process uptime
+  
+  // Calculating CPU Utilization
+  long seconds = uptime_;
   long totaltime = LinuxParser::ActiveJiffies(pid);
   try {
-    CPUulitizations_ = float(totaltime) / float(seconds);
-
+    CPUulitizations_ = static_cast<float>(totaltime) / seconds;
   } catch (...) {
     CPUulitizations_ = 0;
   }
 }
+
 
 // TODO: Return this process's ID
 int Process::Pid() const { return pid_; }
